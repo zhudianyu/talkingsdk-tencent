@@ -1,0 +1,69 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: mavenDirectory)
+        pom.groupId = 'com.talkingsdk'
+        pom.version = '2.7.0a'
+        pom.artifactId = 'talkingsdk-tencent'
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath System.getenv()['ANDROID_GRADLE_VERSION']
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 16
+    compileSdkVersion 19
+    buildToolsVersion System.getenv()["BUILD_TOOL_VERSION"]
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDir 'src'
+            res.srcDir 'res'
+            assets.srcDir 'assets'
+            resources.srcDir 'src'
+        }
+        test {
+            java.srcDir 'tests/src'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://repos.code4.in/release/talkingsdk-maven/raw/master/"
+    }
+}
+dependencies {
+    if ( System.getenv()["TSENV"] != "production" ) {
+        compile project(':projects:talkingsdk')
+        compile project(':libs:libs-tencent')
+    } else {
+        // use the correct version
+        compile("com.talkingsdk:talking-tencent:2.7.0a")
+        compile("com.talkingsdk:talkingsdk:0.5")
+        compile("org.cocos2d-x:cocos2dx:2.1.5")
+    }
+}
